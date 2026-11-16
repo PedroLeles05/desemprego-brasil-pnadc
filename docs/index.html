@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taxa de desocupação no Brasil (2012–2026): análise da PNAD Contínua</title>
+<meta name="description" content="Análise exploratória da taxa de desocupação da PNAD Contínua, com dados do IBGE/SIDRA, Python e Plotly.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+:root{--ink:#14213D;--mute:#5B6577;--rule:#D5DBE5;--acc:#1D6F8C;--bg:#fff;--soft:#F3F6FA}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.7 "Source Serif 4",Georgia,serif}
+main,header .in{max-width:760px;margin:0 auto;padding:0 20px}
+header{background:var(--soft);border-bottom:1px solid var(--rule);padding:44px 0 28px}
+h1{font:600 clamp(1.7rem,4.5vw,2.5rem)/1.2 "Source Serif 4",Georgia,serif;margin:0 0 16px}
+h2{font:600 1.45rem/1.3 "Source Sans 3",system-ui,sans-serif;margin:2.4em 0 .6em;padding-top:.6em;border-top:1px solid var(--rule)}
+h3{font:600 1.1rem "Source Sans 3",system-ui,sans-serif;margin:1.6em 0 .3em}
+.meta{font:15px/1.6 "Source Sans 3",system-ui,sans-serif;color:var(--mute)}
+.meta b{color:var(--ink)}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;font:600 13px "Source Sans 3",system-ui,sans-serif}
+.badges span,.badges a{padding:4px 10px;border:1px solid var(--rule);border-radius:4px;background:#fff;color:var(--ink);text-decoration:none}
+.badges a{background:var(--ink);color:#fff;border-color:var(--ink)}
+.abs{background:var(--soft);padding:16px 20px;border-left:4px solid var(--acc);font-size:16.5px;line-height:1.6}
+.kw{font:15px "Source Sans 3",system-ui,sans-serif;color:var(--mute)}
+p{margin:.8em 0}
+.fig{margin:1.4em -20px;min-height:120px}
+.fig .plot{width:100%}
+figcaption,.warn{font:14.5px/1.5 "Source Sans 3",system-ui,sans-serif;color:var(--mute);padding:0 20px}
+.warn{color:#9A3412}
+pre{background:#0F1B33;color:#E8EEF8;padding:14px 16px;border-radius:6px;overflow-x:auto;font:13.5px/1.55 ui-monospace,Menlo,Consolas,monospace}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88em}
+.rq{padding-left:1.2em}.rq li{margin:.4em 0}
+.stat{font-weight:600;color:var(--acc)}
+.fair{border:1px solid var(--rule);padding:4px 20px 12px;border-radius:6px}
+ol.ref{padding-left:1.3em;font-size:15.5px;line-height:1.55}
+a{color:var(--acc)}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+footer{max-width:760px;margin:40px auto;padding:20px;font:14px "Source Sans 3",system-ui,sans-serif;color:var(--mute);border-top:1px solid var(--rule)}
+@media(max-width:600px){body{font-size:17px}.fig{margin:1.2em -20px}}
+</style>
+</head>
+<body>
+<header><div class="in">
+<h1>Taxa de desocupação no Brasil (2012–2026): análise da PNAD Contínua</h1>
+<p class="meta"><b>Autores:</b> <a href="https://github.com/PedroLeles05">Pedro Henrique Leles Mello e Alvim</a> e <a href="https://github.com/gabrielhierro">Gabriel Hierro Amorim dos Santos</a><br>
+Bacharelado em Sistemas de Informação · 6º período · Unilasalle · Linguagem de Programação · 2026.2<br>
+<b>Professor:</b> Alexandre Neves Louzada</p>
+<div class="badges"><span>Python 3.12</span><span>Dados: IBGE/SIDRA</span><span>Código: MIT</span><span>Dados e texto: CC BY 4.0</span><span>FAIR</span>
+<a href="https://github.com/PedroLeles05/desemprego-brasil-pnadc">Repositório do projeto</a> · <a href="https://github.com/PedroLeles05">GitHub de Pedro</a> · <a href="https://github.com/gabrielhierro">GitHub de Gabriel</a></div>
+</div></header>
+
+<main>
+<h2 style="border:0;margin-top:1.6em">Resumo</h2>
+<div class="abs"><p>A taxa de desocupação é um indicador central para acompanhar as condições do mercado de trabalho brasileiro. Este estudo analisa a série da Pesquisa Nacional por Amostra de Domicílios Contínua (PNAD Contínua), divulgada pelo Instituto Brasileiro de Geografia e Estatística (IBGE), com dados obtidos na API pública do Sistema IBGE de Recuperação Automática (SIDRA). O objetivo é responder a três perguntas: como a taxa nacional evoluiu ao longo do período disponível; quais diferenças são observadas entre as Unidades da Federação e as Grandes Regiões; e se há um comportamento sazonal descritivo na série nacional. O procedimento inclui aquisição dos dados, preservação das respostas originais, conversão de tipos, tratamento de marcadores não numéricos, criação de métricas derivadas e exportação em CSV comprimido e Parquet. A análise exploratória utiliza estatística descritiva e visualizações interativas. A série nacional é apresentada em trimestres móveis, enquanto a comparação entre UFs utiliza trimestres civis; por isso, os dois recortes são analisados separadamente. Os resultados numéricos são calculados diretamente a partir dos arquivos gerados pelo pipeline. As limitações incluem a natureza amostral da pesquisa, a ausência de ponderação nas médias simples das UFs e a dependência entre trimestres móveis consecutivos. O código, o dicionário de dados e as instruções de reprodução acompanham o artigo.</p></div>
+<p class="kw"><b>Palavras-chave:</b> desocupação; PNAD Contínua; mercado de trabalho; desigualdade regional; sazonalidade; ciência aberta.</p>
+<h3>Abstract</h3><p class="kw">The unemployment rate is an important indicator of Brazilian labour-market conditions. This study analyses data from the Continuous National Household Sample Survey (PNAD Contínua), published by the Brazilian Institute of Geography and Statistics (IBGE) and retrieved through the public SIDRA API. It addresses three research questions: the evolution of the national rate, differences among states and macro-regions, and descriptive seasonal behaviour. The workflow includes data acquisition, preservation of original responses, type conversion, treatment of non-numeric markers, calculation of derived measures, and export to compressed CSV and Parquet formats. Exploratory analysis combines descriptive statistics and interactive visualisations. The national series is published as rolling quarters, whereas state-level data are organised by calendar quarter; these different temporal granularities are therefore analysed separately. Numerical findings are calculated from the data files generated by the pipeline rather than manually entered into the article. The main limitations are the survey-based nature of the estimates, the use of unweighted state averages in regional comparisons, and the dependence between consecutive rolling-quarter observations. The repository provides the source code, data dictionary, and instructions required to reproduce the analysis.</p><p class="kw"><b>Keywords:</b> unemployment; PNAD Contínua; labour market; exploratory data analysis; regional differences; data visualisation.</p>
+
+<h2>1. Introdução</h2>
+<p>O desemprego afeta renda, consumo e bem-estar, e a taxa de desocupação é uma das estatísticas oficiais mais acompanhadas pelo governo, por empresas e pela imprensa. Ela mede, entre as pessoas de 14 anos ou mais, a parcela da força de trabalho que não trabalha mas procura trabalho e está disponível (IBGE, 2026a). Como o indicador é divulgado todo mês em trimestres móveis, é comum que variações pequenas, sazonais ou regionais sejam lidas como mudanças de tendência. Este trabalho parte do painel de indicadores do IBGE e organiza a leitura em três perguntas:</p>
+<ol class="rq">
+<li><b>RQ1.</b> Como evoluiu a taxa de desocupação nacional entre 2012 e 2026 e quais fases a série apresenta?</li>
+<li><b>RQ2.</b> Quão heterogêneo é o desemprego entre as UFs e as Grandes Regiões, e essa heterogeneidade mudou ao longo do período?</li>
+<li><b>RQ3.</b> Existe um padrão sazonal estável na série nacional, deixando de lado os anos atípicos de 2020 e 2021?</li>
+</ol>
+
+<h2>2. Metodologia e Pipeline de Dados</h2>
+<h3>2.1 Fonte e granularidade</h3>
+<p>Os dados vêm da API aberta do SIDRA/IBGE (IBGE, 2026d), variável 4099 (taxa de desocupação, %, pessoas de 14 anos ou mais, semana de referência): a tabela 6381 traz o Brasil por <i>trimestre móvel</i> (um valor por mês, desde 2012) e a tabela 4099 traz as 27 UFs por <i>trimestre civil</i> (IBGE, 2026b, 2026c). A PNAD Contínua é uma pesquisa amostral domiciliar; suas estimativas devem ser interpretadas considerando o desenho da pesquisa e a documentação metodológica do IBGE.</p>
+<h3>2.2 Tratamento</h3>
+<p>(i) As respostas JSON originais são preservadas em <code>data/raw/</code>. (ii) A coluna de valores é convertida para número, substituindo a vírgula decimal por ponto; marcadores não numéricos são transformados em <code>NaN</code> e contabilizados no log, sem excluir as linhas. (iii) Os códigos de período são convertidos em datas (Brasil) e rótulos <code>AAAA-Tn</code> (UFs). (iv) A Grande Região é derivada do primeiro dígito do código IBGE da UF. (v) São calculadas a diferença em relação a 12 meses antes e a diferença em relação à média do próprio ano, esta última apenas para anos com 12 observações válidas. (vi) Os resultados são exportados em <code>.csv.gz</code> e <code>.parquet</code>; arquivos JSON menores alimentam os gráficos do artigo.</p>
+<pre>valores = df["V"].astype("string").str.replace(",", ".", regex=False)
+df["taxa"] = pd.to_numeric(valores, errors="coerce")
+
+# A variação é calculada contra o mesmo mês de encerramento
+# do trimestre móvel no ano anterior.
+df["variacao_12m_pp"] = df["taxa"].diff(12).round(1)</pre>
+
+<h2>3. Resultados e Discussão</h2>
+<h3>3.1 RQ1 — Trajetória nacional</h3>
+<figure class="fig"><div id="f1" class="plot" style="height:380px"></div><figcaption>Figura 1. Taxa de desocupação, Brasil, trimestre móvel (mês final). Fonte: IBGE/SIDRA, tabela 6381. Elaboração própria.</figcaption></figure>
+<p>A série observada começa em <span class="stat" data-stat="first">–</span>% (<span data-stat="firstd">–</span>) e termina em <span class="stat" data-stat="last">–</span>% (<span data-stat="lastd">–</span>). No período disponível, a maior taxa foi <span class="stat" data-stat="max">–</span>% (<span data-stat="maxd">–</span>) e a menor foi <span class="stat" data-stat="min">–</span>% (<span data-stat="mind">–</span>). A leitura do gráfico permite localizar fases de elevação e redução do indicador. A interpretação deve considerar que cada observação representa um trimestre móvel encerrado no mês indicado e que a série não é uma sequência de trimestres civis independentes.</p>
+<h3>3.2 RQ2 — Heterogeneidade regional</h3>
+<figure class="fig"><div id="f2" class="plot" style="height:640px"></div><figcaption>Figura 2. Taxa média anual de desocupação por UF (apenas anos com os quatro trimestres), agrupadas por Grande Região. Passe o cursor para ver os valores.</figcaption></figure>
+<p>No trimestre civil mais recente com observações válidas (<span data-stat="uflast">–</span>), entre as UFs disponíveis, a menor taxa foi <span class="stat" data-stat="ufmin">–</span>% (<span data-stat="ufminn">–</span>) e a maior foi <span class="stat" data-stat="ufmax">–</span>% (<span data-stat="ufmaxn">–</span>), uma amplitude de <span class="stat" data-stat="ufamp">–</span> p.p. No primeiro período disponível (<span data-stat="uffirst">–</span>), a amplitude foi <span data-stat="ufamp0">–</span> p.p. A visualização também permite comparar médias anuais simples das UFs agrupadas por Grande Região. Essas médias não são ponderadas pelo tamanho da força de trabalho e devem ser interpretadas como recurso comparativo exploratório, não como estimativas regionais oficiais.</p>
+<h3>3.3 RQ3 — Sazonalidade</h3>
+<figure class="fig"><div id="f3" class="plot" style="height:340px"></div><figcaption>Figura 3. Desvio médio da taxa em relação à média do próprio ano, por mês de encerramento do trimestre móvel (exclui 2020 e 2021).</figcaption></figure>
+<p>O desvio médio mais alto ocorre no mês de encerramento de <span class="stat" data-stat="smaxm">–</span> (<span class="stat" data-stat="smax">–</span> p.p.) e o mais baixo em <span class="stat" data-stat="sminm">–</span> (<span class="stat" data-stat="smin">–</span> p.p.). Esse cálculo compara cada observação com a média do próprio ano e exclui 2020 e 2021, conforme a pergunta de pesquisa. Trata-se de uma exploração descritiva, não de um procedimento formal de ajuste sazonal. Como os trimestres móveis consecutivos compartilham dois de seus três meses, as observações não são independentes; portanto, o gráfico não constitui teste de significância nem comprova, isoladamente, um padrão sazonal estável.</p>
+
+<h2>4. Conclusão</h2>
+<p>A RQ1 é respondida pela identificação da trajetória e dos extremos da série nacional. A RQ2 é examinada por meio das diferenças entre UFs e das médias simples agrupadas por Grande Região. A RQ3 é tratada como uma investigação descritiva de variações ao longo dos meses de encerramento. As conclusões específicas devem ser lidas em conjunto com os valores calculados e exibidos nos gráficos, considerando as limitações amostrais e temporais apresentadas.</p>
+<p><b>Limitações.</b> A taxa de desocupação não capta informalidade, subutilização nem desalento; as taxas por UF vêm de amostra e têm margem de erro; segundo o próprio IBGE, a coleta foi afetada por maior não resposta durante a pandemia; a média simples das UFs não pondera pela força de trabalho; e o padrão sazonal é descritivo. <b>Trabalhos futuros:</b> incorporar subutilização e rendimento (tabelas 6441 e 5434), aplicar decomposição STL, ponderar regiões pela população e relacionar o desemprego ao PIB trimestral.</p>
+
+<h2>5. Disponibilidade dos Dados e Declaração FAIR</h2>
+<div class="fair">
+<p><b>Findable.</b> Repositório com README, palavras-chave, autoria e link para a fonte (IBGE/SIDRA, tabelas 6381 e 4099). <b>Accessible.</b> Repositório público; a ingestão usa a API aberta do SIDRA, sem credenciais; este artigo é servido pelo GitHub Pages. <b>Interoperable.</b> Dicionário em <code>data/data_dictionary.md</code>; dados processados em <code>.csv.gz</code> e <code>.parquet</code>. <b>Reusable.</b> Código sob MIT; dados derivados e texto sob CC BY 4.0; dependências fixadas em <code>requirements.txt</code>.</p>
+<p>O código-fonte e os artefatos de reprodução estão organizados no <a href="https://github.com/PedroLeles05/desemprego-brasil-pnadc">repositório público do projeto</a>. Os perfis dos autores estão identificados no cabeçalho.</p><p>Para obter o projeto, execute:</p><pre><code>git clone https://github.com/PedroLeles05/desemprego-brasil-pnadc.git
+cd desemprego-brasil-pnadc
+python -m pip install -r requirements.txt
+python -m src.etl</code></pre>
+<pre>python -m venv .venv
+# Windows: .venv\Scripts\Activate.ps1
+# Linux/macOS: source .venv/bin/activate
+pip install -r requirements.txt
+python -m src.etl
+jupyter notebook notebooks/analise_exploratoria.ipynb</pre></div>
+
+<h2>6. Referências</h2>
+<ol class="ref">
+<li>INSTITUTO BRASILEIRO DE GEOGRAFIA E ESTATÍSTICA (IBGE). <b>Painel de indicadores: desemprego</b>. Rio de Janeiro: IBGE, 2026a. Disponível em: <a href="https://www.ibge.gov.br/indicadores#desemprego">https://www.ibge.gov.br/indicadores#desemprego</a>. Acesso em: 16 nov. 2026.</li>
+<li>IBGE. <b>SIDRA — Tabela 6381: taxa de desocupação, na semana de referência, das pessoas de 14 anos ou mais de idade (trimestre móvel)</b>. Rio de Janeiro: IBGE, 2026b. Disponível em: <a href="https://sidra.ibge.gov.br/tabela/6381">https://sidra.ibge.gov.br/tabela/6381</a>. Acesso em: 16 nov. 2026.</li>
+<li>IBGE. <b>SIDRA — Tabela 4099: taxas de desocupação e de subutilização da força de trabalho</b>. Rio de Janeiro: IBGE, 2026c. Disponível em: <a href="https://sidra.ibge.gov.br/tabela/4099">https://sidra.ibge.gov.br/tabela/4099</a>. Acesso em: 16 nov. 2026.</li>
+<li>IBGE. <b>API de dados agregados do SIDRA</b>. Rio de Janeiro: IBGE, 2026d. Disponível em: <a href="https://apisidra.ibge.gov.br/">https://apisidra.ibge.gov.br/</a>. Acesso em: 16 nov. 2026.</li>
+<li>THE PANDAS DEVELOPMENT TEAM. <b>pandas documentation</b>. 2026. Disponível em: <a href="https://pandas.pydata.org/docs/">https://pandas.pydata.org/docs/</a>. Acesso em: 16 nov. 2026.</li>
+<li>PLOTLY. <b>Plotly Python graphing library</b>. 2026. Disponível em: <a href="https://plotly.com/python/">https://plotly.com/python/</a>. Acesso em: 16 nov. 2026.</li>
+</ol>
+</main>
+<footer>Texto e dados derivados sob CC BY 4.0 · Código sob MIT · Fonte primária: IBGE, PNAD Contínua.</footer>
+
+<script>
+const $$=s=>document.querySelectorAll(s),f1=x=>Number(x).toFixed(1).replace('.',','),M=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+const dt=d=>M[Number(d.slice(5))-1]+'/'+d.slice(0,4),set=(k,v)=>$$(`[data-stat="${k}"]`).forEach(e=>e.textContent=v);
+const C={ink:'#14213D',acc:'#1D6F8C',hot:'#C2410C'};
+const L=(y)=>({font:{family:'Source Sans 3, system-ui, sans-serif',size:13,color:C.ink},margin:{t:20,r:20,b:50,l:56},xaxis:{gridcolor:'#E6EAF0'},yaxis:{gridcolor:'#E6EAF0',title:y,rangemode:'tozero'},paper_bgcolor:'#fff',plot_bgcolor:'#fff'});
+const P={responsive:true,displaylogo:false};
+const get=n=>fetch('assets/'+n+'.json').then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()});
+Promise.all([get('serie_brasil'),get('uf_trimestral')]).then(([B,U])=>{
+  if(!Array.isArray(B)||!B.length||!Array.isArray(U)||!U.length) throw new Error('Arquivos sem observações');
+  fig1(B.filter(r=>r.t!==null&&Number.isFinite(Number(r.t))));
+  fig2(U.filter(r=>r.t!==null&&Number.isFinite(Number(r.t))));
+  fig3(B);
+}).catch(err=>$$('.fig').forEach(f=>f.insertAdjacentHTML('afterbegin','<p class="warn">Não foi possível carregar os dados dos gráficos. Execute <code>python -m src.etl</code> na raiz do projeto e publique os arquivos gerados em <code>docs/assets/</code>. Detalhe: '+String(err.message)+'</p>')));
+function fig1(B){
+  if(!B.length) throw new Error('Série nacional sem taxas válidas');
+  B.sort((a,b)=>a.d.localeCompare(b.d));
+  const mx=B.reduce((a,r)=>Number(r.t)>Number(a.t)?r:a),mn=B.reduce((a,r)=>Number(r.t)<Number(a.t)?r:a),fi=B[0],la=B[B.length-1];
+  set('first',f1(fi.t));set('firstd',dt(fi.d));set('last',f1(la.t));set('lastd',dt(la.d));
+  set('max',f1(mx.t));set('maxd',dt(mx.d));set('min',f1(mn.t));set('mind',dt(mn.d));
+  Plotly.newPlot('f1',[{x:B.map(r=>r.d+'-01'),y:B.map(r=>Number(r.t)),type:'scatter',mode:'lines',line:{color:C.acc,width:2.5},hovertemplate:'%{x|%b/%Y}: %{y:.1f}%<extra></extra>'},
+  {x:[mx.d+'-01',mn.d+'-01'],y:[Number(mx.t),Number(mn.t)],mode:'markers+text',text:[f1(mx.t)+'%',f1(mn.t)+'%'],textposition:['top center','bottom center'],marker:{color:C.hot,size:9},hoverinfo:'skip'}],
+  {...L('Taxa de desocupação (%)'),showlegend:false},P);
+}
+function fig2(U){
+  if(!U.length) throw new Error('Painel estadual sem taxas válidas');
+  const ord=['Norte','Nordeste','Centro-Oeste','Sudeste','Sul'];
+  const ufs=[...new Map(U.map(r=>[r.uf,r.r]))].sort((a,b)=>ord.indexOf(a[1])-ord.indexOf(b[1])||a[0].localeCompare(b[0]));
+  const anos=[...new Set(U.map(r=>Number(r.a)))].sort((a,b)=>a-b);
+  const media=(uf,ano)=>{const v=U.filter(r=>r.uf===uf&&Number(r.a)===ano&&r.t!==null).map(r=>Number(r.t));return v.length===4?v.reduce((s,x)=>s+x,0)/4:null};
+  const anosCompletos=anos.filter(a=>ufs.every(u=>U.filter(r=>r.uf===u[0]&&Number(r.a)===a&&r.t!==null).length===4));
+  const heatYears=anosCompletos.length?anosCompletos:anos;
+  Plotly.newPlot('f2',[{type:'heatmap',x:heatYears,y:ufs.map(u=>u[0]+' ('+u[1]+')'),z:ufs.map(u=>heatYears.map(a=>media(u[0],a))),colorscale:[[0,'#E8F1F7'],[1,'#0E3B5C']],colorbar:{title:'%'},hovertemplate:'%{y}<br>%{x}: %{z:.1f}%<extra></extra>'}],
+  {...L(''),margin:{t:10,r:10,b:40,l:160},xaxis:{type:'category'},yaxis:{autorange:'reversed',title:''}},P);
+  const periodos=[...new Set(U.map(r=>Number(r.a)*10+Number(r.q)))].sort((a,b)=>a-b);
+  const recorte=k=>U.filter(r=>Number(r.a)*10+Number(r.q)===k&&r.t!==null&&Number.isFinite(Number(r.t)));
+  const atual=recorte(periodos[periodos.length-1]),inicial=recorte(periodos[0]);
+  if(atual.length){const hi=atual.reduce((a,r)=>Number(r.t)>Number(a.t)?r:a),lo=atual.reduce((a,r)=>Number(r.t)<Number(a.t)?r:a);set('uflast',hi.a+'-T'+hi.q);set('ufmin',f1(lo.t));set('ufminn',lo.uf);set('ufmax',f1(hi.t));set('ufmaxn',hi.uf);set('ufamp',f1(Number(hi.t)-Number(lo.t)));}
+  if(inicial.length){const vals=inicial.map(r=>Number(r.t));set('uffirst',inicial[0].a+'-T'+inicial[0].q);set('ufamp0',f1(Math.max(...vals)-Math.min(...vals)));}
+  const y=anosCompletos.length?anosCompletos[anosCompletos.length-1]:anos[anos.length-1];
+  set('yr',y);
+  set('reg',ord.map(g=>{const v=ufs.filter(u=>u[1]===g).map(u=>media(u[0],y)).filter(x=>x!==null);return v.length?g+' '+f1(v.reduce((a,b)=>a+b,0)/v.length)+'%':g+' sem dados completos';}).join('; '));
+}
+function fig3(B){
+  const S=B.filter(r=>r.s!==null&&r.s!==undefined&&![2020,2021].includes(Number(r.a))&&Number.isFinite(Number(r.s)));
+  const m=Array.from({length:12},(_,i)=>{const v=S.filter(r=>Number(r.d.slice(5))===i+1).map(r=>Number(r.s));return v.length?v.reduce((a,b)=>a+b,0)/v.length:null;});
+  const vi=m.map((v,i)=>[v,i]).filter(x=>x[0]!==null);
+  if(!vi.length) throw new Error('Não há anos completos suficientes para a análise descritiva sazonal');
+  const hi=vi.reduce((a,b)=>b[0]>a[0]?b:a),lo=vi.reduce((a,b)=>b[0]<a[0]?b:a);
+  set('smax',hi[0].toFixed(2).replace('.',','));set('smaxm',M[hi[1]]);set('smin',lo[0].toFixed(2).replace('.',','));set('sminm',M[lo[1]]);
+  Plotly.newPlot('f3',[{type:'bar',x:M,y:m,marker:{color:m.map(v=>v===null?'#D5DBE5':v>=0?C.hot:C.acc)},hovertemplate:'%{x}: %{y:+.2f} p.p.<extra></extra>'}],{...L('Desvio médio (p.p.)'),yaxis:{gridcolor:'#E6EAF0',title:'Desvio médio (p.p.)',zeroline:true},showlegend:false},P);
+}
+</script>
+</body>
+</html>
