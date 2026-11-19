@@ -7,6 +7,7 @@
 **Professor:** Alexandre Neves Louzada
 
 **Repositório do projeto:** [https://github.com/PedroLeles05/desemprego-brasil-pnadc](https://github.com/PedroLeles05/desemprego-brasil-pnadc)  
+**Link do Pages:** [https://github.com/PedroLeles05/desemprego-brasil-pnadc](https://github.com/PedroLeles05/desemprego-brasil-pnadc)
 **Clonar o projeto:** `git clone https://github.com/PedroLeles05/desemprego-brasil-pnadc.git`  
 O endereço do GitHub Pages será divulgado após a ativação e publicação em **Settings → Pages**.
 
